@@ -11,7 +11,7 @@ Go 1.24 or later.
 ## Installation
 
 ```sh
-go get github.com/lemakpay/client-go@v0.1.0
+go get github.com/lemakpay/client-go@v0.2.0
 ```
 
 ```go
@@ -34,6 +34,38 @@ if err != nil {
 	return err
 }
 ```
+
+### Automatic currency conversion
+
+To price an order in your settlement currency and let the payer pay in theirs, set
+`PaymentCurrency`:
+
+```go
+method, thb := "promptpay", lemak.Currency("THB")
+bearer := lemak.PaymentIntentCreateMarkupBearerPayer
+pi, err := c.CreatePaymentIntent(ctx, lemak.PaymentIntentCreate{
+	Amount:          1000, // 10.00 USD, your price
+	Currency:        "USD",
+	PaymentCurrency: &thb,
+	MarkupBearer:    &bearer,
+	MerchantOrderId: "order-1002",
+	PaymentMethod:   &method,
+}, nil)
+// pi.PaymentAmount is what the payer pays, in THB.
+```
+
+The payer pays in another currency and you are paid in yours. The exchange rate is always locked
+when the payment intent is created, whatever your lock point setting, and it holds until the
+payment intent expires. `currency` must be your settlement currency, and `payment_method` is
+required. The response keeps your price in `amount` and `currency`; the payer's side is in
+`payment_amount`, and the applied rate, markup included, is in `fx.rate`.
+
+`markup_bearer` decides who pays the conversion markup and your fee:
+
+- `payer` (the default): the payer pays them, so you receive exactly `amount`. The payment
+  amount is rounded up to the payment currency's smallest unit.
+- `merchant`: the payer pays `amount` converted without markup, rounded up. You receive the
+  payment amount less your fee, converted at `fx.rate` and rounded down.
 
 List endpoints return an iterator that fetches pages as needed:
 

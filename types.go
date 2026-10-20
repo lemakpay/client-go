@@ -120,6 +120,24 @@ func (e PaymentAttemptStatus) Valid() bool {
 	}
 }
 
+// Defines values for PaymentIntentMarkupBearer.
+const (
+	PaymentIntentMarkupBearerMerchant PaymentIntentMarkupBearer = "merchant"
+	PaymentIntentMarkupBearerPayer    PaymentIntentMarkupBearer = "payer"
+)
+
+// Valid indicates whether the value is a known member of the PaymentIntentMarkupBearer enum.
+func (e PaymentIntentMarkupBearer) Valid() bool {
+	switch e {
+	case PaymentIntentMarkupBearerMerchant:
+		return true
+	case PaymentIntentMarkupBearerPayer:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for PaymentIntentMode.
 const (
 	PaymentIntentModeLive PaymentIntentMode = "live"
@@ -150,6 +168,24 @@ func (e PaymentIntentAdvanceClock) Valid() bool {
 	case PaymentIntentAdvanceClockExpiry:
 		return true
 	case PaymentIntentAdvanceClockRelease:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for PaymentIntentCreateMarkupBearer.
+const (
+	PaymentIntentCreateMarkupBearerMerchant PaymentIntentCreateMarkupBearer = "merchant"
+	PaymentIntentCreateMarkupBearerPayer    PaymentIntentCreateMarkupBearer = "payer"
+)
+
+// Valid indicates whether the value is a known member of the PaymentIntentCreateMarkupBearer enum.
+func (e PaymentIntentCreateMarkupBearer) Valid() bool {
+	switch e {
+	case PaymentIntentCreateMarkupBearerMerchant:
+		return true
+	case PaymentIntentCreateMarkupBearerPayer:
 		return true
 	default:
 		return false
@@ -426,7 +462,7 @@ type EventList struct {
 
 // FxLock The exchange rate locked for this payment.
 type FxLock struct {
-	// LockPoint When the rate is locked: when the payment intent is created, when it is paid, or when the channel settles it.
+	// LockPoint When the rate is locked: when the payment intent is created, when it is paid, or when the channel settles it. A payment intent with automatic conversion is always `on_create`.
 	LockPoint *FxLockLockPoint `json:"lock_point,omitempty"`
 
 	// Locked Whether a rate is locked.
@@ -438,11 +474,11 @@ type FxLock struct {
 	// QuoteCurrency A currency code in uppercase: an ISO 4217 code such as `THB`, or a token such as `USDT`.
 	QuoteCurrency *Currency `json:"quote_currency,omitempty"`
 
-	// Rate The locked rate, as a decimal string.
+	// Rate The applied rate, as a decimal string: units of the payment currency for one unit of `quote_currency`, markup included.
 	Rate *string `json:"rate,omitempty"`
 }
 
-// FxLockLockPoint When the rate is locked: when the payment intent is created, when it is paid, or when the channel settles it.
+// FxLockLockPoint When the rate is locked: when the payment intent is created, when it is paid, or when the channel settles it. A payment intent with automatic conversion is always `on_create`.
 type FxLockLockPoint string
 
 // FxQuote defines model for FxQuote.
@@ -455,7 +491,7 @@ type FxQuote struct {
 	// Indicative Always `true`. A quote locks no rate.
 	Indicative interface{} `json:"indicative"`
 
-	// Rate The effective rate, the mid-market rate plus the spread, as a decimal string.
+	// Rate The rate that applies, markup included, as a decimal string.
 	Rate string `json:"rate"`
 
 	// To A currency code in uppercase: an ISO 4217 code such as `THB`, or a token such as `USDT`.
@@ -561,7 +597,7 @@ type PaymentAttemptList struct {
 
 // PaymentIntent A payment intent tracks one payment from creation to settlement.
 type PaymentIntent struct {
-	// Amount The amount to collect, in the smallest currency unit.
+	// Amount The amount to collect, in the smallest currency unit. With automatic conversion, the price you set, and the payer pays `payment_amount`.
 	Amount int64 `json:"amount"`
 
 	// AvailableAt The time the funds become available in your balance.
@@ -589,6 +625,9 @@ type PaymentIntent struct {
 	// Id Unique identifier for the payment intent.
 	Id string `json:"id"`
 
+	// MarkupBearer Who pays the conversion markup. Present only with automatic conversion.
+	MarkupBearer *PaymentIntentMarkupBearer `json:"markup_bearer,omitempty"`
+
 	// MerchantOrderId Your ID for the order.
 	MerchantOrderId string `json:"merchant_order_id"`
 
@@ -605,12 +644,18 @@ type PaymentIntent struct {
 	NextAction *NextAction `json:"next_action,omitempty"`
 	Object     interface{} `json:"object"`
 
+	// PaymentAmount What the payer pays. Present only with automatic conversion. The fee is charged on this amount.
+	PaymentAmount *Money `json:"payment_amount,omitempty"`
+
 	// PaymentMethod The payment method code, once one is chosen.
 	PaymentMethod *string `json:"payment_method,omitempty"`
 
 	// Status The status of the payment intent.
 	Status PaymentIntentStatus `json:"status"`
 }
+
+// PaymentIntentMarkupBearer Who pays the conversion markup. Present only with automatic conversion.
+type PaymentIntentMarkupBearer string
 
 // PaymentIntentMode `live` for production, `test` for test mode.
 type PaymentIntentMode string
@@ -626,7 +671,7 @@ type PaymentIntentAdvanceClock string
 
 // PaymentIntentCreate defines model for PaymentIntentCreate.
 type PaymentIntentCreate struct {
-	// Amount The amount to collect, in the smallest currency unit.
+	// Amount The amount to collect, in the smallest currency unit. With `payment_currency`, the price of the order in `currency`, which must then be your settlement currency, or the request fails with 400 `unsupported_pricing_currency`.
 	Amount int64 `json:"amount"`
 
 	// ChannelPreference The code of a payment channel you prefer.
@@ -644,6 +689,13 @@ type PaymentIntentCreate struct {
 	// ExpiresIn The number of seconds until the payment intent expires. When omitted, the payment method's default applies.
 	ExpiresIn *int `json:"expires_in,omitempty"`
 
+	// MarkupBearer Who pays the conversion markup when `payment_currency` is set. Defaults to `payer`.
+	//
+	// `payer`: the payer pays the conversion and your fee, so you receive exactly `amount`. The payment amount is `amount` at the applied rate (`fx.rate`), grossed up by your fee rate and fixed fee, and rounded up to the payment currency's smallest unit.
+	//
+	// `merchant`: the payer pays `amount` converted at the market rate without markup, rounded up. You receive the payment amount less your fee, converted at the applied rate (`fx.rate`) and rounded down.
+	MarkupBearer *PaymentIntentCreateMarkupBearer `json:"markup_bearer,omitempty"`
+
 	// MerchantOrderId Your ID for the order. It must be unique across all payment intents in your account.
 	MerchantOrderId string `json:"merchant_order_id"`
 
@@ -653,12 +705,22 @@ type PaymentIntentCreate struct {
 	// Payer Details about the payer. Some payment channels require some of these fields, and a channel is not used when a field it requires is missing. The details are sent to the channel for this payment only. They are never stored or returned.
 	Payer *Payer `json:"payer,omitempty"`
 
+	// PaymentCurrency The currency the payer pays in, when it differs from `currency`. The amount is converted automatically and returned in `payment_amount`. The rate is locked at creation and holds until the payment intent expires. Requires `payment_method`; a crypto method returns 400 `conversion_unsupported`. When no rate is available, the request fails with 400 `rate_unavailable`.
+	PaymentCurrency *Currency `json:"payment_currency,omitempty"`
+
 	// PaymentMethod The payment method code. When set, the order is placed with a payment channel at once. When omitted, the payer chooses a method on the hosted checkout page. For a crypto method such as `tron` or `base`, `currency` is the token, `USDT` or `USDC`, and the default expiry is 30 minutes.
 	PaymentMethod *string `json:"payment_method,omitempty"`
 
 	// ReturnUrl The page the payer returns to after a successful payment. It must be an absolute `https` URL with a host name and no user info. IP addresses and `localhost` are not accepted, in test mode too. Any other value returns 400 `invalid_return_url`.
 	ReturnUrl *string `json:"return_url,omitempty"`
 }
+
+// PaymentIntentCreateMarkupBearer Who pays the conversion markup when `payment_currency` is set. Defaults to `payer`.
+//
+// `payer`: the payer pays the conversion and your fee, so you receive exactly `amount`. The payment amount is `amount` at the applied rate (`fx.rate`), grossed up by your fee rate and fixed fee, and rounded up to the payment currency's smallest unit.
+//
+// `merchant`: the payer pays `amount` converted at the market rate without markup, rounded up. You receive the payment amount less your fee, converted at the applied rate (`fx.rate`) and rounded down.
+type PaymentIntentCreateMarkupBearer string
 
 // PaymentIntentList defines model for PaymentIntentList.
 type PaymentIntentList struct {
