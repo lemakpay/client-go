@@ -1067,8 +1067,6 @@ type ListPaymentAttemptsParams struct {
 
 // CreatePaymentAttemptJSONBody defines parameters for CreatePaymentAttempt.
 type CreatePaymentAttemptJSONBody struct {
-	Channel *string `json:"channel,omitempty"`
-
 	// PaymentMethod The payment method code. Required if the payment intent has no order yet. Without it, the request returns 400 `payment_method_required`.
 	PaymentMethod string `json:"payment_method"`
 }
