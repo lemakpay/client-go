@@ -582,7 +582,7 @@ type Payer struct {
 	// BankCode The payer's bank, as one of the bank codes the payment method supports.
 	BankCode *string `json:"bank_code,omitempty"`
 
-	// Country Two-letter ISO 3166-1 country code.
+	// Country Two-letter ISO 3166-1 country code. When set, routing keeps to payment methods of this country and to methods tied to no country, such as crypto. The hosted checkout page offers only those.
 	Country *string `json:"country,omitempty"`
 
 	// Email The payer's email address.
