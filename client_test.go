@@ -93,7 +93,9 @@ func TestEveryRouteIsCovered(t *testing.T) {
 			for range c.Events(ctx, nil) {
 			}
 		},
-		"webhookPublicKeys": func() { c.WebhookPublicKeys(ctx, nil) },
+		"webhookPublicKeys":  func() { c.WebhookPublicKeys(ctx, nil) },
+		"listPaymentMethods": func() { c.ListPaymentMethods(ctx, nil) },
+		"listCurrencies":     func() { c.ListCurrencies(ctx, nil) },
 	}
 	for _, route := range load(t).Routes {
 		t.Run(route.Operation, func(t *testing.T) {

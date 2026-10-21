@@ -88,6 +88,17 @@ func (c *Client) FxQuote(ctx context.Context, p FxQuoteParams) (*FxQuote, error)
 	return call[FxQuote](ctx, c, http.MethodGet, "/v1/fx/quotes", p, nil)
 }
 
+// ListPaymentMethods lists the payment methods the key's mode can use, each with the currencies it
+// serves. Set Currency to keep the methods that serve one currency.
+func (c *Client) ListPaymentMethods(ctx context.Context, p *ListPaymentMethodsParams) (*PaymentMethodList, error) {
+	return call[PaymentMethodList](ctx, c, http.MethodGet, "/v1/payment_methods", p, nil)
+}
+
+// ListCurrencies lists the currencies you can charge in, quote and settle in, with their exponents.
+func (c *Client) ListCurrencies(ctx context.Context, p *ListCurrenciesParams) (*CurrencyList, error) {
+	return call[CurrencyList](ctx, c, http.MethodGet, "/v1/currencies", p, nil)
+}
+
 // Events iterates over the events behind the webhook deliveries, newest first.
 func (c *Client) Events(ctx context.Context, p *EventsParams) iter.Seq2[Event, error] {
 	return pages(ctx, c, "/v1/events", p, func(v Event) string { return v.Id })

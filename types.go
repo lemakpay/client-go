@@ -369,6 +369,34 @@ type CryptoFinality struct {
 // Currency A currency code in uppercase: an ISO 4217 code such as `THB`, or a token such as `USDT`.
 type Currency = string
 
+// CurrencyDetails A currency you can charge in, get a quote for, or settle in.
+type CurrencyDetails struct {
+	// Chargeable Whether a payment method serves it, so you can create a payment intent in it.
+	Chargeable bool `json:"chargeable"`
+
+	// Code A currency code in uppercase: an ISO 4217 code such as `THB`, or a token such as `USDT`.
+	Code Currency `json:"code"`
+
+	// Exponent The number of decimal places of the smallest unit. An amount of `1000` is 10.00 at exponent 2 and 1000 at exponent 0.
+	Exponent int         `json:"exponent"`
+	Object   interface{} `json:"object"`
+
+	// Quotable Whether GET /v1/fx/quotes prices it against the settlement currency, so a payer can pay in it when you price in the settlement currency.
+	Quotable bool `json:"quotable"`
+
+	// Settlement Whether it is the settlement currency, which is the one you price in for automatic conversion.
+	Settlement bool `json:"settlement"`
+}
+
+// CurrencyList defines model for CurrencyList.
+type CurrencyList struct {
+	Data []CurrencyDetails `json:"data"`
+
+	// HasMore Always `false`.
+	HasMore bool        `json:"has_more"`
+	Object  interface{} `json:"object"`
+}
+
 // DestinationType The kind of payout destination.
 type DestinationType string
 
@@ -776,6 +804,34 @@ type PaymentIntentSimulateOutcome string
 // PaymentIntentStatus The status of the payment intent.
 type PaymentIntentStatus string
 
+// PaymentMethod A payment method you can use, and the currencies it serves.
+type PaymentMethod struct {
+	// Code The code you send as `payment_method`.
+	Code string `json:"code"`
+
+	// Currencies The currencies the method serves, in alphabetical order.
+	Currencies []Currency `json:"currencies"`
+
+	// IconUrl An icon for the method, when one is set.
+	IconUrl *string `json:"icon_url,omitempty"`
+
+	// Kind The kind of method, such as `qr`, `wallet`, `bank`, `card` or `crypto`.
+	Kind string `json:"kind"`
+
+	// Names The name of the method by language tag, such as `en`, `zh-Hant` or `zh-Hans`. `en` is always present.
+	Names  map[string]string `json:"names"`
+	Object interface{}       `json:"object"`
+}
+
+// PaymentMethodList defines model for PaymentMethodList.
+type PaymentMethodList struct {
+	Data []PaymentMethod `json:"data"`
+
+	// HasMore Always `false`.
+	HasMore bool        `json:"has_more"`
+	Object  interface{} `json:"object"`
+}
+
 // Settlement defines model for Settlement.
 type Settlement struct {
 	// Amount The amount paid to you. It equals the total of the settled payments.
@@ -897,6 +953,12 @@ type ErrorResponse = ErrorEnvelope
 
 // BalanceParams defines parameters for Balance.
 type BalanceParams struct {
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
+// ListCurrenciesParams defines parameters for ListCurrencies.
+type ListCurrenciesParams struct {
 	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
 	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
 }
@@ -1024,6 +1086,15 @@ type CreatePaymentAttemptParams struct {
 type CancelPaymentIntentParams struct {
 	// IdempotencyKey A unique key you generate for this request, up to 255 characters. A retry with the same key and body returns the original response. Without it, the request returns 400 `idempotency_key_required`.
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
+// ListPaymentMethodsParams defines parameters for ListPaymentMethods.
+type ListPaymentMethodsParams struct {
+	// Currency List only the methods that serve this currency.
+	Currency *Currency `form:"currency,omitempty" json:"currency,omitempty"`
 
 	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
 	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
