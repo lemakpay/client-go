@@ -6,6 +6,27 @@ import (
 	"time"
 )
 
+// Defines values for DestinationType.
+const (
+	DestinationTypeSimulated   DestinationType = "simulated"
+	DestinationTypeSwift       DestinationType = "swift"
+	DestinationTypeUsdcOnchain DestinationType = "usdc_onchain"
+)
+
+// Valid indicates whether the value is a known member of the DestinationType enum.
+func (e DestinationType) Valid() bool {
+	switch e {
+	case DestinationTypeSimulated:
+		return true
+	case DestinationTypeSwift:
+		return true
+	case DestinationTypeUsdcOnchain:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DisputeStatus.
 const (
 	DisputeStatusLost        DisputeStatus = "lost"
@@ -347,6 +368,9 @@ type CryptoFinality struct {
 
 // Currency A currency code in uppercase: an ISO 4217 code such as `THB`, or a token such as `USDT`.
 type Currency = string
+
+// DestinationType The kind of payout destination.
+type DestinationType string
 
 // Dispute defines model for Dispute.
 type Dispute struct {
@@ -760,12 +784,21 @@ type Settlement struct {
 	// Created The time the settlement was created.
 	Created time.Time `json:"created"`
 
+	// Destination Where the settlement is paid. Absent when the settlement names no destination.
+	Destination *SettlementDestination `json:"destination,omitempty"`
+
 	// Id Unique identifier for the settlement.
 	Id string `json:"id"`
+
+	// Items The payment intents this settlement pays. Present only when you retrieve one settlement. The item amounts add up to `amount`.
+	Items *[]SettlementItem `json:"items,omitempty"`
 
 	// Mode `live` for production, `test` for test mode.
 	Mode   SettlementMode `json:"mode"`
 	Object interface{}    `json:"object"`
+
+	// PaidAt The time the settlement was paid. Present only when `status` is `paid`.
+	PaidAt *time.Time `json:"paid_at,omitempty"`
 
 	// Payments The number of payment intents in this settlement.
 	Payments *int `json:"payments,omitempty"`
@@ -782,6 +815,34 @@ type Settlement struct {
 
 // SettlementMode `live` for production, `test` for test mode.
 type SettlementMode string
+
+// SettlementDestination Where the settlement is paid. Absent when the settlement names no destination.
+type SettlementDestination struct {
+	// Masked The last four characters of the destination, and nothing else. An empty string when the destination has four characters or fewer, or none.
+	Masked string `json:"masked"`
+
+	// Type The kind of payout destination.
+	Type DestinationType `json:"type"`
+}
+
+// SettlementItem defines model for SettlementItem.
+type SettlementItem struct {
+	// Amount The amount paid for this payment intent.
+	Amount Money       `json:"amount"`
+	Object interface{} `json:"object"`
+
+	// PaymentIntent The ID of the payment intent this item pays.
+	PaymentIntent string `json:"payment_intent"`
+}
+
+// SettlementList defines model for SettlementList.
+type SettlementList struct {
+	Data []Settlement `json:"data"`
+
+	// HasMore Whether more objects exist after this page.
+	HasMore bool        `json:"has_more"`
+	Object  interface{} `json:"object"`
+}
 
 // SettlementStatus The status of the settlement.
 type SettlementStatus string
@@ -824,6 +885,9 @@ type Limit = int
 
 // PaymentIntentID defines model for PaymentIntentID.
 type PaymentIntentID = string
+
+// SettlementID defines model for SettlementID.
+type SettlementID = string
 
 // StartingAfter defines model for StartingAfter.
 type StartingAfter = string
@@ -965,11 +1029,32 @@ type CancelPaymentIntentParams struct {
 	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
 }
 
+// ListSettlementsParams defines parameters for ListSettlements.
+type ListSettlementsParams struct {
+	// Limit The maximum number of objects to return, from 1 to 100.
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// StartingAfter A pagination cursor. Pass the ID of the last object on the previous page to get the next page.
+	StartingAfter *StartingAfter `form:"starting_after,omitempty" json:"starting_after,omitempty"`
+
+	// Status Only return settlements with this status. Any other value returns 400 `invalid_status`.
+	Status *SettlementStatus `form:"status,omitempty" json:"status,omitempty"`
+
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
 // CreateSettlementParams defines parameters for CreateSettlement.
 type CreateSettlementParams struct {
 	// IdempotencyKey A unique key you generate for this request, up to 255 characters. A retry with the same key and body returns the original response. Without it, the request returns 400 `idempotency_key_required`.
 	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
 
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
+// SettlementParams defines parameters for Settlement.
+type SettlementParams struct {
 	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
 	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
 }

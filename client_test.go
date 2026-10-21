@@ -82,8 +82,13 @@ func TestEveryRouteIsCovered(t *testing.T) {
 		"dispute":               func() { c.Dispute(ctx, "dp_A", nil) },
 		"submitDisputeEvidence": func() { c.SubmitDisputeEvidence(ctx, "dp_A", DisputeEvidence{}, nil) },
 		"createSettlement":      func() { c.CreateSettlement(ctx, nil) },
-		"balance":               func() { c.Balance(ctx, nil) },
-		"fxQuote":               func() { c.FxQuote(ctx, FxQuoteParams{From: "THB", To: "USD"}) },
+		"listSettlements": func() {
+			for range c.ListSettlements(ctx, nil) {
+			}
+		},
+		"settlement": func() { c.Settlement(ctx, "st_A", nil) },
+		"balance":    func() { c.Balance(ctx, nil) },
+		"fxQuote":    func() { c.FxQuote(ctx, FxQuoteParams{From: "THB", To: "USD"}) },
 		"events": func() {
 			for range c.Events(ctx, nil) {
 			}

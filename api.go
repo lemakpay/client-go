@@ -68,6 +68,17 @@ func (c *Client) CreateSettlement(ctx context.Context, p *CreateSettlementParams
 	return call[Settlement](ctx, c, http.MethodPost, "/v1/settlements", p, nil)
 }
 
+// ListSettlements iterates over the settlements in the key's mode, newest first. Each one
+// leaves out its items; Settlement returns them.
+func (c *Client) ListSettlements(ctx context.Context, p *ListSettlementsParams) iter.Seq2[Settlement, error] {
+	return pages(ctx, c, "/v1/settlements", p, func(v Settlement) string { return v.Id })
+}
+
+// Settlement returns one settlement, with the payment intents it pays in Items.
+func (c *Client) Settlement(ctx context.Context, id string, p *SettlementParams) (*Settlement, error) {
+	return call[Settlement](ctx, c, http.MethodGet, "/v1/settlements/"+url.PathEscape(id), p, nil)
+}
+
 func (c *Client) Balance(ctx context.Context, p *BalanceParams) (*Balance, error) {
 	return call[Balance](ctx, c, http.MethodGet, "/v1/balance", p, nil)
 }
