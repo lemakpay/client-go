@@ -39,6 +39,8 @@ func (c *Client) ListPaymentAttempts(ctx context.Context, id string, p *ListPaym
 }
 
 // SimulatePaymentIntent reports an outcome for a test-mode intent. A live key is refused.
+// An intent with no pending attempt returns 409 no_pending_attempt: create an attempt
+// with CreatePaymentAttempt, or let the payer pick a method on the hosted page, first.
 func (c *Client) SimulatePaymentIntent(ctx context.Context, id string, in PaymentIntentSimulate, p *SimulatePaymentIntentParams) (*PaymentIntent, error) {
 	return call[PaymentIntent](ctx, c, http.MethodPost, "/v1/test/payment_intents/"+url.PathEscape(id)+"/simulate", p, in)
 }
