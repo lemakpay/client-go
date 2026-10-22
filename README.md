@@ -11,7 +11,7 @@ Go 1.24 or later.
 ## Installation
 
 ```sh
-go get github.com/lemakpay/client-go@v0.4.0
+go get github.com/lemakpay/client-go@v0.5.0
 ```
 
 ```go
@@ -107,6 +107,33 @@ for pi, err := range c.ListPaymentIntents(ctx, nil) {
 	fmt.Println(pi.Id)
 }
 ```
+
+### Invoices and receipts
+
+Every payment intent carries an invoice. Pass `ReceiptEmail` on create, and the payer gets a
+receipt by email when the payment succeeds:
+
+```go
+email := "payer@example.com"
+pi, err := c.CreatePaymentIntent(ctx, lemak.PaymentIntentCreate{
+	Amount:          100000,
+	Currency:        "THB",
+	MerchantOrderId: "order-1001",
+	ReceiptEmail:    &email,
+}, nil)
+if err != nil {
+	return err
+}
+if inv := pi.Invoice; inv != nil {
+	fmt.Println(inv.Number, inv.HostedInvoiceUrl) // share the URL with the payer
+}
+if r := pi.Receipt; r != nil { // present from succeeded on
+	fmt.Println(r.Number, r.ReceiptUrl)
+}
+```
+
+`ReceiptEmail` is not returned. A value that is not one email address returns 400
+`invalid_receipt_email`. The hosted invoice and receipt pages have a Download PDF button.
 
 ### Request signing
 

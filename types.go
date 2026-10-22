@@ -692,6 +692,9 @@ type PaymentIntent struct {
 	// Id Unique identifier for the payment intent.
 	Id string `json:"id"`
 
+	// Invoice The invoice issued with the payment intent. Its hosted page shows the amount due, the due date and a pay button while the payment intent is open, and the outcome after. The page prints to an A4 PDF from the browser.
+	Invoice *PaymentIntentInvoice `json:"invoice,omitempty"`
+
 	// MarkupBearer Who pays the conversion markup. Present only with automatic conversion.
 	MarkupBearer *PaymentIntentMarkupBearer `json:"markup_bearer,omitempty"`
 
@@ -719,6 +722,9 @@ type PaymentIntent struct {
 
 	// PresentmentDetails What the payer is shown and charged. Present once a payment method is chosen.
 	PresentmentDetails *PresentmentDetails `json:"presentment_details,omitempty"`
+
+	// Receipt The receipt issued when the payment intent succeeds. Present from `succeeded` on.
+	Receipt *PaymentIntentReceipt `json:"receipt,omitempty"`
 
 	// Status The status of the payment intent.
 	Status PaymentIntentStatus `json:"status"`
@@ -781,6 +787,9 @@ type PaymentIntentCreate struct {
 	// PaymentMethod The payment method code. When set, the order is placed with a payment channel at once. When omitted, the payer chooses a method on the hosted checkout page. For a crypto method such as `tron` or `base`, `currency` is the token, `USDT` or `USDC`, and the default expiry is 30 minutes.
 	PaymentMethod *string `json:"payment_method,omitempty"`
 
+	// ReceiptEmail The payer's email address. When the payment succeeds, the receipt is sent to it, in the language of the payment's country, else English. Any value that is not one email address returns 400 `invalid_receipt_email`. It is not returned.
+	ReceiptEmail *string `json:"receipt_email,omitempty"`
+
 	// ReturnUrl The page the payer returns to after a successful payment. It must be an absolute `https` URL with a host name and no user info. IP addresses and `localhost` are not accepted, in test mode too. Any other value returns 400 `invalid_return_url`.
 	ReturnUrl *string `json:"return_url,omitempty"`
 }
@@ -792,6 +801,15 @@ type PaymentIntentCreate struct {
 // `merchant`: the payer pays `amount` converted at the market rate without markup, rounded up. You receive the payment amount less your fee, converted at the applied rate (`fx.rate`) and rounded down.
 type PaymentIntentCreateMarkupBearer string
 
+// PaymentIntentInvoice The invoice issued with the payment intent. Its hosted page shows the amount due, the due date and a pay button while the payment intent is open, and the outcome after. The page prints to an A4 PDF from the browser.
+type PaymentIntentInvoice struct {
+	// HostedInvoiceUrl The URL of the hosted invoice page. Share it with the payer.
+	HostedInvoiceUrl string `json:"hosted_invoice_url"`
+
+	// Number The invoice number, sequential per account and mode, for example `3F9A1C07-0042`. A sandbox number starts with `TEST-`.
+	Number string `json:"number"`
+}
+
 // PaymentIntentList defines model for PaymentIntentList.
 type PaymentIntentList struct {
 	Data []PaymentIntent `json:"data"`
@@ -799,6 +817,15 @@ type PaymentIntentList struct {
 	// HasMore Whether more objects exist after this page.
 	HasMore bool        `json:"has_more"`
 	Object  interface{} `json:"object"`
+}
+
+// PaymentIntentReceipt The receipt issued when the payment intent succeeds. Present from `succeeded` on.
+type PaymentIntentReceipt struct {
+	// Number The receipt number, sequential per account and mode, for example `3F9A1C07-R0042`. A sandbox number starts with `TEST-`.
+	Number string `json:"number"`
+
+	// ReceiptUrl The URL of the hosted receipt page.
+	ReceiptUrl string `json:"receipt_url"`
 }
 
 // PaymentIntentSimulate defines model for PaymentIntentSimulate.
