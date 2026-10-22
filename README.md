@@ -11,7 +11,7 @@ Go 1.24 or later.
 ## Installation
 
 ```sh
-go get github.com/lemakpay/client-go@v0.2.0
+go get github.com/lemakpay/client-go@v0.4.0
 ```
 
 ```go
@@ -66,6 +66,36 @@ required. The response keeps your price in `amount` and `currency`; the payer's 
   amount is rounded up to the payment currency's smallest unit.
 - `merchant`: the payer pays `amount` converted without markup, rounded up. You receive the
   payment amount less your fee, converted at `fx.rate` and rounded down.
+
+### What the payer is charged
+
+A payment method can charge only in steps and above a minimum. Each method lists these rules per
+currency in `TransactionLimits`:
+
+```go
+methods, err := c.ListPaymentMethods(ctx, nil)
+if err != nil {
+	return err
+}
+for _, m := range methods.Data {
+	if l, ok := m.TransactionLimits["THB"]; ok {
+		fmt.Println(m.Code, l.RoundingIncrement, l.MinimumAmount) // MinimumAmount is nil for none
+	}
+}
+```
+
+The payer's charge is `amount` rounded up to the method's `rounding_increment`, and at least its
+`minimum_amount`. `amount` never changes. Once a payment method is chosen, the payment intent
+shows the charge in `PresentmentDetails`:
+
+```go
+if d := pi.PresentmentDetails; d != nil {
+	fmt.Println(d.PresentmentAmount, d.PresentmentCurrency)
+}
+```
+
+A method that is not enabled for your account in that currency returns 400
+`payment_method_unavailable`.
 
 List endpoints return an iterator that fetches pages as needed:
 

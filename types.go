@@ -342,6 +342,21 @@ func (e SimulatedDecline) Valid() bool {
 	}
 }
 
+// Defines values for TransactionLimitsRoundingMode.
+const (
+	TransactionLimitsRoundingModeUp TransactionLimitsRoundingMode = "up"
+)
+
+// Valid indicates whether the value is a known member of the TransactionLimitsRoundingMode enum.
+func (e TransactionLimitsRoundingMode) Valid() bool {
+	switch e {
+	case TransactionLimitsRoundingModeUp:
+		return true
+	default:
+		return false
+	}
+}
+
 // Balance Your funds by state. Each list holds one amount per currency.
 type Balance struct {
 	// Available Funds that can be paid out to you.
@@ -702,6 +717,9 @@ type PaymentIntent struct {
 	// PaymentMethod The payment method code, once one is chosen.
 	PaymentMethod *string `json:"payment_method,omitempty"`
 
+	// PresentmentDetails What the payer is shown and charged. Present once a payment method is chosen.
+	PresentmentDetails *PresentmentDetails `json:"presentment_details,omitempty"`
+
 	// Status The status of the payment intent.
 	Status PaymentIntentStatus `json:"status"`
 }
@@ -821,6 +839,9 @@ type PaymentMethod struct {
 	// Names The name of the method by language tag, such as `en`, `zh-Hant` or `zh-Hans`. `en` is always present.
 	Names  map[string]string `json:"names"`
 	Object interface{}       `json:"object"`
+
+	// TransactionLimits The charge rules of the method, per currency it serves.
+	TransactionLimits map[string]TransactionLimits `json:"transaction_limits"`
 }
 
 // PaymentMethodList defines model for PaymentMethodList.
@@ -830,6 +851,15 @@ type PaymentMethodList struct {
 	// HasMore Always `false`.
 	HasMore bool        `json:"has_more"`
 	Object  interface{} `json:"object"`
+}
+
+// PresentmentDetails The amount the payer is shown and charged.
+type PresentmentDetails struct {
+	// PresentmentAmount The amount charged, in the smallest currency unit: `amount` rounded up to the method's `rounding_increment`, and at least its `minimum_amount`.
+	PresentmentAmount int64 `json:"presentment_amount"`
+
+	// PresentmentCurrency A currency code in uppercase: an ISO 4217 code such as `THB`, or a token such as `USDT`.
+	PresentmentCurrency Currency `json:"presentment_currency"`
 }
 
 // Settlement defines model for Settlement.
@@ -905,6 +935,21 @@ type SettlementStatus string
 
 // SimulatedDecline The decline reason for a `failed` outcome. It becomes the attempt's `failure_code`. Allowed only with the outcome `failed`.
 type SimulatedDecline string
+
+// TransactionLimits How the payer's charge is computed from a payment intent's `amount`, which never changes.
+type TransactionLimits struct {
+	// MinimumAmount The least the payer is charged, in the smallest currency unit, or null for none.
+	MinimumAmount *int64 `json:"minimum_amount"`
+
+	// RoundingIncrement The payer's charge is a multiple of this, in the smallest currency unit; 1 takes any amount.
+	RoundingIncrement int64 `json:"rounding_increment"`
+
+	// RoundingMode The charge is rounded up, never down.
+	RoundingMode TransactionLimitsRoundingMode `json:"rounding_mode"`
+}
+
+// TransactionLimitsRoundingMode The charge is rounded up, never down.
+type TransactionLimitsRoundingMode string
 
 // WebhookPublicKey defines model for WebhookPublicKey.
 type WebhookPublicKey struct {
