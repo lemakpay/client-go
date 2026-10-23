@@ -797,7 +797,7 @@ type Dispute struct {
 
 // DisputeEvidence defines model for DisputeEvidence.
 type DisputeEvidence struct {
-	// Evidence The evidence to add, as key-value pairs. Each key replaces the same key on the dispute. The keys `receipt`, `customer_communication`, `shipping_documentation` and `uncategorized_file` each take the ID of a file you uploaded with purpose `dispute_evidence`, in the same mode. Every other key takes any value.
+	// Evidence The evidence to add, as key-value pairs. Each key replaces the same key on the dispute. The keys `receipt`, `customer_communication`, `shipping_documentation` and `uncategorized_file` each take the ID of a file you uploaded with purpose `dispute_evidence`, in the same mode; any other value is 400 `invalid_evidence_file`. At API version 2026-09-01 those keys also take free text, but a value that is a file ID must still name a file of yours. Every other key takes any value.
 	Evidence map[string]interface{} `json:"evidence"`
 }
 

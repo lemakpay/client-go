@@ -35,7 +35,7 @@ const DefaultBaseURL = "https://api.lemak.cash"
 
 // APIVersion is the version these types describe. A Client sends it as Api-Version unless
 // its own APIVersion field names another.
-const APIVersion = "2026-09-01"
+const APIVersion = "2026-10-23"
 
 const (
 	defaultRetries = 2
