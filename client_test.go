@@ -92,6 +92,7 @@ func TestEveryRouteIsCovered(t *testing.T) {
 		"settlement": func() { c.Settlement(ctx, "st_A", nil) },
 		"balance":    func() { c.Balance(ctx, nil) },
 		"fxQuote":    func() { c.FxQuote(ctx, FxQuoteParams{From: "THB", To: "USD"}) },
+		"listIps":    func() { c.ListIps(ctx) },
 		"events": func() {
 			for range c.Events(ctx, nil) {
 			}

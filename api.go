@@ -186,6 +186,11 @@ func (c *Client) FxQuote(ctx context.Context, p FxQuoteParams) (*FxQuote, error)
 	return call[FxQuote](ctx, c, http.MethodGet, "/v1/fx/quotes", p, nil)
 }
 
+// ListIps lists the addresses webhook deliveries leave from. The list is empty until published.
+func (c *Client) ListIps(ctx context.Context) (*IpList, error) {
+	return call[IpList](ctx, c, http.MethodGet, "/v1/ips", nil, nil)
+}
+
 // ListPaymentMethods lists the payment methods the key's mode can use, each with the currencies it
 // serves. Set Currency to keep the methods that serve one currency.
 func (c *Client) ListPaymentMethods(ctx context.Context, p *ListPaymentMethodsParams) (*PaymentMethodList, error) {

@@ -948,6 +948,17 @@ type FxQuote struct {
 	To Currency `json:"to"`
 }
 
+// IpList defines model for IpList.
+type IpList struct {
+	Object interface{} `json:"object"`
+
+	// UpdatedAt When the list last changed. Absent while the list is empty.
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+
+	// Webhooks The IPv4 and IPv6 addresses webhook deliveries leave from. Empty until published.
+	Webhooks []string `json:"webhooks"`
+}
+
 // MerchantRequest defines model for MerchantRequest.
 type MerchantRequest struct {
 	CreatedAt time.Time           `json:"created_at"`

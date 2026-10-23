@@ -5,6 +5,13 @@ All notable changes to this module are documented in this file. The format is ba
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Before 1.0.0, a minor version can
 change an exported signature; each such change is listed under **Changed** with how to migrate.
 
+## [0.7.0] - 2026-10-23
+
+### Added
+
+- `ListIps` returns the addresses webhook deliveries leave from, for a firewall allow-list. The
+  webhook signature stays the control; the list is empty until published.
+
 ## [0.6.0] - 2026-10-23
 
 ### Added
