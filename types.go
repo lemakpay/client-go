@@ -6,6 +6,69 @@ import (
 	"time"
 )
 
+// Defines values for BalanceTransactionBalanceType.
+const (
+	BalanceTransactionBalanceTypeAvailable   BalanceTransactionBalanceType = "available"
+	BalanceTransactionBalanceTypeDisputeHold BalanceTransactionBalanceType = "dispute_hold"
+	BalanceTransactionBalanceTypePending     BalanceTransactionBalanceType = "pending"
+	BalanceTransactionBalanceTypeReviewHold  BalanceTransactionBalanceType = "review_hold"
+)
+
+// Valid indicates whether the value is a known member of the BalanceTransactionBalanceType enum.
+func (e BalanceTransactionBalanceType) Valid() bool {
+	switch e {
+	case BalanceTransactionBalanceTypeAvailable:
+		return true
+	case BalanceTransactionBalanceTypeDisputeHold:
+		return true
+	case BalanceTransactionBalanceTypePending:
+		return true
+	case BalanceTransactionBalanceTypeReviewHold:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for BalanceTransactionType.
+const (
+	BalanceTransactionTypeAdjustment     BalanceTransactionType = "adjustment"
+	BalanceTransactionTypeConversion     BalanceTransactionType = "conversion"
+	BalanceTransactionTypeDisputeFee     BalanceTransactionType = "dispute_fee"
+	BalanceTransactionTypeDisputeHold    BalanceTransactionType = "dispute_hold"
+	BalanceTransactionTypeDisputeLoss    BalanceTransactionType = "dispute_loss"
+	BalanceTransactionTypeDisputeRelease BalanceTransactionType = "dispute_release"
+	BalanceTransactionTypePayment        BalanceTransactionType = "payment"
+	BalanceTransactionTypeRelease        BalanceTransactionType = "release"
+	BalanceTransactionTypeSettlement     BalanceTransactionType = "settlement"
+)
+
+// Valid indicates whether the value is a known member of the BalanceTransactionType enum.
+func (e BalanceTransactionType) Valid() bool {
+	switch e {
+	case BalanceTransactionTypeAdjustment:
+		return true
+	case BalanceTransactionTypeConversion:
+		return true
+	case BalanceTransactionTypeDisputeFee:
+		return true
+	case BalanceTransactionTypeDisputeHold:
+		return true
+	case BalanceTransactionTypeDisputeLoss:
+		return true
+	case BalanceTransactionTypeDisputeRelease:
+		return true
+	case BalanceTransactionTypePayment:
+		return true
+	case BalanceTransactionTypeRelease:
+		return true
+	case BalanceTransactionTypeSettlement:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DestinationType.
 const (
 	DestinationTypeSimulated   DestinationType = "simulated"
@@ -51,6 +114,33 @@ func (e DisputeStatus) Valid() bool {
 	}
 }
 
+// Defines values for ErrorDeclineCode.
+const (
+	ErrorDeclineCodeAmount    ErrorDeclineCode = "amount"
+	ErrorDeclineCodeBlocklist ErrorDeclineCode = "blocklist"
+	ErrorDeclineCodeGeneric   ErrorDeclineCode = "generic"
+	ErrorDeclineCodeGeo       ErrorDeclineCode = "geo"
+	ErrorDeclineCodeVelocity  ErrorDeclineCode = "velocity"
+)
+
+// Valid indicates whether the value is a known member of the ErrorDeclineCode enum.
+func (e ErrorDeclineCode) Valid() bool {
+	switch e {
+	case ErrorDeclineCodeAmount:
+		return true
+	case ErrorDeclineCodeBlocklist:
+		return true
+	case ErrorDeclineCodeGeneric:
+		return true
+	case ErrorDeclineCodeGeo:
+		return true
+	case ErrorDeclineCodeVelocity:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ErrorType.
 const (
 	ErrorTypeApiError            ErrorType = "api_error"
@@ -78,6 +168,42 @@ func (e ErrorType) Valid() bool {
 	}
 }
 
+// Defines values for FilePurpose.
+const (
+	FilePurposeDisputeEvidence FilePurpose = "dispute_evidence"
+)
+
+// Valid indicates whether the value is a known member of the FilePurpose enum.
+func (e FilePurpose) Valid() bool {
+	switch e {
+	case FilePurposeDisputeEvidence:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for FileType.
+const (
+	FileTypeJpg FileType = "jpg"
+	FileTypePdf FileType = "pdf"
+	FileTypePng FileType = "png"
+)
+
+// Valid indicates whether the value is a known member of the FileType enum.
+func (e FileType) Valid() bool {
+	switch e {
+	case FileTypeJpg:
+		return true
+	case FileTypePdf:
+		return true
+	case FileTypePng:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for FxLockLockPoint.
 const (
 	FxLockLockPointOnChannelSettled FxLockLockPoint = "on_channel_settled"
@@ -93,6 +219,72 @@ func (e FxLockLockPoint) Valid() bool {
 	case FxLockLockPointOnCreate:
 		return true
 	case FxLockLockPointOnPaid:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MerchantRequestKind.
+const (
+	MerchantRequestKindPayoutMethodCreate  MerchantRequestKind = "payout_method.create"
+	MerchantRequestKindPayoutMethodDefault MerchantRequestKind = "payout_method.default"
+	MerchantRequestKindPayoutMethodRemove  MerchantRequestKind = "payout_method.remove"
+	MerchantRequestKindWithdrawal          MerchantRequestKind = "withdrawal"
+)
+
+// Valid indicates whether the value is a known member of the MerchantRequestKind enum.
+func (e MerchantRequestKind) Valid() bool {
+	switch e {
+	case MerchantRequestKindPayoutMethodCreate:
+		return true
+	case MerchantRequestKindPayoutMethodDefault:
+		return true
+	case MerchantRequestKindPayoutMethodRemove:
+		return true
+	case MerchantRequestKindWithdrawal:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MerchantRequestMode.
+const (
+	MerchantRequestModeLive MerchantRequestMode = "live"
+	MerchantRequestModeTest MerchantRequestMode = "test"
+)
+
+// Valid indicates whether the value is a known member of the MerchantRequestMode enum.
+func (e MerchantRequestMode) Valid() bool {
+	switch e {
+	case MerchantRequestModeLive:
+		return true
+	case MerchantRequestModeTest:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for MerchantRequestStatus.
+const (
+	MerchantRequestStatusApproved MerchantRequestStatus = "approved"
+	MerchantRequestStatusExpired  MerchantRequestStatus = "expired"
+	MerchantRequestStatusPending  MerchantRequestStatus = "pending"
+	MerchantRequestStatusRejected MerchantRequestStatus = "rejected"
+)
+
+// Valid indicates whether the value is a known member of the MerchantRequestStatus enum.
+func (e MerchantRequestStatus) Valid() bool {
+	switch e {
+	case MerchantRequestStatusApproved:
+		return true
+	case MerchantRequestStatusExpired:
+		return true
+	case MerchantRequestStatusPending:
+		return true
+	case MerchantRequestStatusRejected:
 		return true
 	default:
 		return false
@@ -279,6 +471,48 @@ func (e PaymentIntentStatus) Valid() bool {
 	}
 }
 
+// Defines values for RefundReason.
+const (
+	RefundReasonDuplicate           RefundReason = "duplicate"
+	RefundReasonFraudulent          RefundReason = "fraudulent"
+	RefundReasonRequestedByCustomer RefundReason = "requested_by_customer"
+)
+
+// Valid indicates whether the value is a known member of the RefundReason enum.
+func (e RefundReason) Valid() bool {
+	switch e {
+	case RefundReasonDuplicate:
+		return true
+	case RefundReasonFraudulent:
+		return true
+	case RefundReasonRequestedByCustomer:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RefundStatus.
+const (
+	RefundStatusFailed    RefundStatus = "failed"
+	RefundStatusPending   RefundStatus = "pending"
+	RefundStatusSucceeded RefundStatus = "succeeded"
+)
+
+// Valid indicates whether the value is a known member of the RefundStatus enum.
+func (e RefundStatus) Valid() bool {
+	switch e {
+	case RefundStatusFailed:
+		return true
+	case RefundStatusPending:
+		return true
+	case RefundStatusSucceeded:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SettlementMode.
 const (
 	SettlementModeLive SettlementMode = "live"
@@ -291,6 +525,21 @@ func (e SettlementMode) Valid() bool {
 	case SettlementModeLive:
 		return true
 	case SettlementModeTest:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SettlementCreateCurrency.
+const (
+	SettlementCreateCurrencyUSD SettlementCreateCurrency = "USD"
+)
+
+// Valid indicates whether the value is a known member of the SettlementCreateCurrency enum.
+func (e SettlementCreateCurrency) Valid() bool {
+	switch e {
+	case SettlementCreateCurrencyUSD:
 		return true
 	default:
 		return false
@@ -357,6 +606,45 @@ func (e TransactionLimitsRoundingMode) Valid() bool {
 	}
 }
 
+// Defines values for StatementParamsFormat.
+const (
+	StatementParamsFormatCsv  StatementParamsFormat = "csv"
+	StatementParamsFormatHtml StatementParamsFormat = "html"
+)
+
+// Valid indicates whether the value is a known member of the StatementParamsFormat enum.
+func (e StatementParamsFormat) Valid() bool {
+	switch e {
+	case StatementParamsFormatCsv:
+		return true
+	case StatementParamsFormatHtml:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for StatementParamsLang.
+const (
+	StatementParamsLangEn     StatementParamsLang = "en"
+	StatementParamsLangZhHans StatementParamsLang = "zh-Hans"
+	StatementParamsLangZhHant StatementParamsLang = "zh-Hant"
+)
+
+// Valid indicates whether the value is a known member of the StatementParamsLang enum.
+func (e StatementParamsLang) Valid() bool {
+	switch e {
+	case StatementParamsLangEn:
+		return true
+	case StatementParamsLangZhHans:
+		return true
+	case StatementParamsLangZhHant:
+		return true
+	default:
+		return false
+	}
+}
+
 // Balance Your funds by state. Each list holds one amount per currency.
 type Balance struct {
 	// Available Funds that can be paid out to you.
@@ -371,6 +659,58 @@ type Balance struct {
 	// ReviewHold Crypto payments held for manual review. Each is usually released within one business day. Empty if you do not accept crypto.
 	ReviewHold []Money `json:"review_hold"`
 }
+
+// BalanceTransaction defines model for BalanceTransaction.
+type BalanceTransaction struct {
+	// Amount The gross amount. Negative when money leaves this balance type. It equals `net` plus `fee`.
+	Amount Money `json:"amount"`
+
+	// AvailableOn When the funds become available. Present on the available balance, and on a pending entry of a payment once its release time is known.
+	AvailableOn *time.Time `json:"available_on,omitempty"`
+
+	// BalanceType The balance this entry moves, as GET /v1/balance names it.
+	BalanceType BalanceTransactionBalanceType `json:"balance_type"`
+
+	// Created The time the entry was booked.
+	Created time.Time `json:"created"`
+
+	// ExchangeRate The rate of a `conversion`: units of the original currency for one unit of the settlement currency, markup included. Absent on every other type.
+	ExchangeRate *string `json:"exchange_rate,omitempty"`
+
+	// Fee The fee taken from `amount`. Non-zero on a `payment` alone.
+	Fee Money `json:"fee"`
+
+	// Id Unique identifier for the balance transaction.
+	Id string `json:"id"`
+
+	// Net The amount this entry adds to the balance type. Negative when it takes.
+	Net    Money       `json:"net"`
+	Object interface{} `json:"object"`
+
+	// RunningBalance The balance of this balance type and currency after this entry.
+	RunningBalance Money `json:"running_balance"`
+
+	// Source The ID of the object that caused the entry: a payment intent (`pi_`), a settlement (`st_`) or a dispute (`dp_`). Absent on an adjustment.
+	Source *string `json:"source,omitempty"`
+
+	// Type What moved the money. `payment` credits a payment net of its fee. `conversion` is the exchange to your settlement currency, one entry per currency. `release` moves funds to the next balance type, such as pending to available. `settlement` takes available funds into a settlement. `dispute_hold`, `dispute_release` and `dispute_loss` are the stages of a dispute, and `dispute_fee` is the fee a lost dispute costs. `adjustment` is every other movement.
+	Type BalanceTransactionType `json:"type"`
+}
+
+// BalanceTransactionBalanceType The balance this entry moves, as GET /v1/balance names it.
+type BalanceTransactionBalanceType string
+
+// BalanceTransactionList defines model for BalanceTransactionList.
+type BalanceTransactionList struct {
+	Data []BalanceTransaction `json:"data"`
+
+	// HasMore Whether more objects exist after this page.
+	HasMore bool        `json:"has_more"`
+	Object  interface{} `json:"object"`
+}
+
+// BalanceTransactionType What moved the money. `payment` credits a payment net of its fee. `conversion` is the exchange to your settlement currency, one entry per currency. `release` moves funds to the next balance type, such as pending to available. `settlement` takes available funds into a settlement. `dispute_hold`, `dispute_release` and `dispute_loss` are the stages of a dispute, and `dispute_fee` is the fee a lost dispute costs. `adjustment` is every other movement.
+type BalanceTransactionType string
 
 // CryptoFinality Whether a crypto payment is final. Present only on crypto payment intents. On a layer 2 network, a payment succeeds when the transfer is seen and becomes final when its batch is confirmed on layer 1. Until then the chain can reverse it: the payment intent moves to `failed`, and you receive the events `payment_intent.failed` and `payment_intent.reversed`. When the payment becomes final, you receive `payment_intent.finalized` once. For a high-value order, wait for this event before you deliver.
 type CryptoFinality struct {
@@ -457,7 +797,7 @@ type Dispute struct {
 
 // DisputeEvidence defines model for DisputeEvidence.
 type DisputeEvidence struct {
-	// Evidence The evidence to add, as key-value pairs. Each key replaces the same key on the dispute.
+	// Evidence The evidence to add, as key-value pairs. Each key replaces the same key on the dispute. The keys `receipt`, `customer_communication`, `shipping_documentation` and `uncategorized_file` each take the ID of a file you uploaded with purpose `dispute_evidence`, in the same mode. Every other key takes any value.
 	Evidence map[string]interface{} `json:"evidence"`
 }
 
@@ -478,6 +818,9 @@ type Error struct {
 	// Code A short, stable string that identifies the error, such as `resource_missing`. Use it to handle errors in code.
 	Code string `json:"code"`
 
+	// DeclineCode Present on `payment_blocked` alone: the kind of risk rule that declined the payment. `velocity` is too many payments in a short time, `blocklist` is a payer on a block list, `geo` is the payer's country, `amount` is the amount, and `generic` is any other rule.
+	DeclineCode *ErrorDeclineCode `json:"decline_code,omitempty"`
+
 	// Message A readable explanation of the error. The text can change.
 	Message string `json:"message"`
 
@@ -490,6 +833,9 @@ type Error struct {
 	// Type The category of the error.
 	Type ErrorType `json:"type"`
 }
+
+// ErrorDeclineCode Present on `payment_blocked` alone: the kind of risk rule that declined the payment. `velocity` is too many payments in a short time, `blocklist` is a payer on a block list, `geo` is the payer's country, `amount` is the amount, and `generic` is any other rule.
+type ErrorDeclineCode string
 
 // ErrorType The category of the error.
 type ErrorType string
@@ -525,6 +871,43 @@ type EventList struct {
 	// HasMore Whether more objects exist after this page.
 	HasMore bool        `json:"has_more"`
 	Object  interface{} `json:"object"`
+}
+
+// File defines model for File.
+type File struct {
+	// CreatedAt The time the file was uploaded.
+	CreatedAt time.Time `json:"created_at"`
+
+	// Filename The name the file was uploaded with.
+	Filename string `json:"filename"`
+
+	// Id Unique identifier for the file.
+	Id     string      `json:"id"`
+	Object interface{} `json:"object"`
+
+	// Purpose Why the file was uploaded.
+	Purpose FilePurpose `json:"purpose"`
+
+	// Size The size of the file in bytes.
+	Size int64 `json:"size"`
+
+	// Type The type of the file, read from its contents.
+	Type FileType `json:"type"`
+}
+
+// FilePurpose Why the file was uploaded.
+type FilePurpose string
+
+// FileType The type of the file, read from its contents.
+type FileType string
+
+// FileUpload defines model for FileUpload.
+type FileUpload struct {
+	// File The file. A PDF, a JPEG or a PNG of at most 5 MB.
+	File string `json:"file"`
+
+	// Purpose Why the file was uploaded.
+	Purpose FilePurpose `json:"purpose"`
 }
 
 // FxLock The exchange rate locked for this payment.
@@ -564,6 +947,41 @@ type FxQuote struct {
 	// To A currency code in uppercase: an ISO 4217 code such as `THB`, or a token such as `USDT`.
 	To Currency `json:"to"`
 }
+
+// MerchantRequest defines model for MerchantRequest.
+type MerchantRequest struct {
+	CreatedAt time.Time           `json:"created_at"`
+	DecidedAt *time.Time          `json:"decided_at,omitempty"`
+	DecidedBy *string             `json:"decided_by,omitempty"`
+	ExpiresAt time.Time           `json:"expires_at"`
+	Id        string              `json:"id"`
+	Kind      MerchantRequestKind `json:"kind"`
+	Mode      MerchantRequestMode `json:"mode"`
+	Note      *string             `json:"note,omitempty"`
+	Object    interface{}         `json:"object"`
+
+	// RequestedBy The dashboard user who asked.
+	RequestedBy *string `json:"requested_by,omitempty"`
+
+	// RequestedByKey The withdrawal key that asked.
+	RequestedByKey *string `json:"requested_by_key,omitempty"`
+
+	// Result The settlement or the payout destination the approval made.
+	Result *string               `json:"result,omitempty"`
+	Status MerchantRequestStatus `json:"status"`
+
+	// Summary What the change does, masked: the amount and the destination of a withdrawal, the type, label and last four characters of a destination.
+	Summary map[string]string `json:"summary"`
+}
+
+// MerchantRequestKind defines model for MerchantRequest.Kind.
+type MerchantRequestKind string
+
+// MerchantRequestMode defines model for MerchantRequest.Mode.
+type MerchantRequestMode string
+
+// MerchantRequestStatus defines model for MerchantRequestStatus.
+type MerchantRequestStatus string
 
 // Money defines model for Money.
 type Money struct {
@@ -684,7 +1102,9 @@ type PaymentIntent struct {
 
 	// ExpiresAt The time the payment intent expires if it is not paid.
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
-	Fee       *Money     `json:"fee,omitempty"`
+
+	// Fee The whole fee for the payment, in the payment currency, once a payment method is chosen. It includes the cost of the payment channel.
+	Fee *Money `json:"fee,omitempty"`
 
 	// Fx The exchange rate locked for this payment.
 	Fx *FxLock `json:"fx,omitempty"`
@@ -889,6 +1309,67 @@ type PresentmentDetails struct {
 	PresentmentCurrency Currency `json:"presentment_currency"`
 }
 
+// Refund defines model for Refund.
+type Refund struct {
+	// Amount The amount refunded to the payer, in the currency the payer paid in.
+	Amount Money `json:"amount"`
+
+	// CreatedAt The time the refund was created.
+	CreatedAt time.Time `json:"created_at"`
+
+	// FailureCode Why the refund failed. Present on a `failed` refund alone.
+	FailureCode *string `json:"failure_code,omitempty"`
+
+	// Fee The refund fee of the payment channel, in your settlement currency. It is debited from your balance with the refund.
+	Fee Money `json:"fee"`
+
+	// Id Unique identifier for the refund.
+	Id string `json:"id"`
+
+	// Metadata The key-value pairs stored on the refund.
+	Metadata map[string]string `json:"metadata"`
+	Object   interface{}       `json:"object"`
+
+	// PaymentIntent The ID of the refunded payment intent.
+	PaymentIntent string `json:"payment_intent"`
+
+	// Reason Why you refund the payment.
+	Reason *RefundReason `json:"reason,omitempty"`
+
+	// Status The status of the refund. `pending` waits for the payment channel to confirm it, and `succeeded` and `failed` are final.
+	Status RefundStatus `json:"status"`
+}
+
+// RefundCreate defines model for RefundCreate.
+type RefundCreate struct {
+	// Amount The amount to refund, in the smallest unit of the currency the payer paid in. When omitted, the whole amount that is left is refunded.
+	Amount *int64 `json:"amount,omitempty"`
+
+	// Metadata Key-value pairs of strings to store on the refund.
+	Metadata *map[string]string `json:"metadata,omitempty"`
+
+	// PaymentIntent The ID of the payment intent to refund.
+	PaymentIntent string `json:"payment_intent"`
+
+	// Reason Why you refund the payment.
+	Reason *RefundReason `json:"reason,omitempty"`
+}
+
+// RefundList defines model for RefundList.
+type RefundList struct {
+	Data []Refund `json:"data"`
+
+	// HasMore Whether more objects exist after this page.
+	HasMore bool        `json:"has_more"`
+	Object  interface{} `json:"object"`
+}
+
+// RefundReason Why you refund the payment.
+type RefundReason string
+
+// RefundStatus The status of the refund. `pending` waits for the payment channel to confirm it, and `succeeded` and `failed` are final.
+type RefundStatus string
+
 // Settlement defines model for Settlement.
 type Settlement struct {
 	// Amount The amount paid to you. It equals the total of the settled payments.
@@ -929,8 +1410,26 @@ type Settlement struct {
 // SettlementMode `live` for production, `test` for test mode.
 type SettlementMode string
 
+// SettlementCreate defines model for SettlementCreate.
+type SettlementCreate struct {
+	// Amount Minor units to withdraw. Absent pays every released payment. The oldest payments are paid first, and the last one in part.
+	Amount *int64 `json:"amount,omitempty"`
+
+	// Currency Required with `amount`.
+	Currency *SettlementCreateCurrency `json:"currency,omitempty"`
+
+	// PayoutMethod An address book entry. Absent is the default.
+	PayoutMethod *string `json:"payout_method,omitempty"`
+}
+
+// SettlementCreateCurrency Required with `amount`.
+type SettlementCreateCurrency string
+
 // SettlementDestination Where the settlement is paid. Absent when the settlement names no destination.
 type SettlementDestination struct {
+	// Label Your own name for the destination
+	Label *string `json:"label,omitempty"`
+
 	// Masked The last four characters of the destination, and nothing else. An empty string when the destination has four characters or fewer, or none.
 	Masked string `json:"masked"`
 
@@ -1005,6 +1504,9 @@ type ApiVersion = string
 // DisputeID defines model for DisputeID.
 type DisputeID = string
 
+// FileID defines model for FileID.
+type FileID = string
+
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
 
@@ -1013,6 +1515,9 @@ type Limit = int
 
 // PaymentIntentID defines model for PaymentIntentID.
 type PaymentIntentID = string
+
+// RefundID defines model for RefundID.
+type RefundID = string
 
 // SettlementID defines model for SettlementID.
 type SettlementID = string
@@ -1025,6 +1530,18 @@ type ErrorResponse = ErrorEnvelope
 
 // BalanceParams defines parameters for Balance.
 type BalanceParams struct {
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
+// ListBalanceTransactionsParams defines parameters for ListBalanceTransactions.
+type ListBalanceTransactionsParams struct {
+	// Limit The maximum number of objects to return, from 1 to 100.
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// StartingAfter A pagination cursor. Pass the ID of the last object on the previous page to get the next page.
+	StartingAfter *StartingAfter `form:"starting_after,omitempty" json:"starting_after,omitempty"`
+
 	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
 	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
 }
@@ -1056,6 +1573,15 @@ type DisputeParams struct {
 	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
 }
 
+// CloseDisputeParams defines parameters for CloseDispute.
+type CloseDisputeParams struct {
+	// IdempotencyKey A unique key you generate for this request, up to 255 characters. A retry with the same key and body returns the original response. Without it, the request returns 400 `idempotency_key_required`.
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
 // SubmitDisputeEvidenceParams defines parameters for SubmitDisputeEvidence.
 type SubmitDisputeEvidenceParams struct {
 	// IdempotencyKey A unique key you generate for this request, up to 255 characters. A retry with the same key and body returns the original response. Without it, the request returns 400 `idempotency_key_required`.
@@ -1073,6 +1599,21 @@ type EventsParams struct {
 	// StartingAfter The ID of the last event on the previous page.
 	StartingAfter *string `form:"starting_after,omitempty" json:"starting_after,omitempty"`
 
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
+// CreateFileParams defines parameters for CreateFile.
+type CreateFileParams struct {
+	// IdempotencyKey A unique key you generate for this request, up to 255 characters. A retry with the same key and body returns the original response. Without it, the request returns 400 `idempotency_key_required`.
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
+// FileParams defines parameters for File.
+type FileParams struct {
 	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
 	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
 }
@@ -1170,6 +1711,39 @@ type ListPaymentMethodsParams struct {
 	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
 }
 
+// ListRefundsParams defines parameters for ListRefunds.
+type ListRefundsParams struct {
+	// Limit The maximum number of objects to return, from 1 to 100.
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// StartingAfter A pagination cursor. Pass the ID of the last object on the previous page to get the next page.
+	StartingAfter *StartingAfter `form:"starting_after,omitempty" json:"starting_after,omitempty"`
+
+	// PaymentIntent Only return refunds of this payment intent.
+	PaymentIntent *string `form:"payment_intent,omitempty" json:"payment_intent,omitempty"`
+
+	// Status Only return refunds with this status.
+	Status *RefundStatus `form:"status,omitempty" json:"status,omitempty"`
+
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
+// CreateRefundParams defines parameters for CreateRefund.
+type CreateRefundParams struct {
+	// IdempotencyKey A unique key you generate for this request, up to 255 characters. A retry with the same key and body returns the original response. Without it, the request returns 400 `idempotency_key_required`.
+	IdempotencyKey IdempotencyKey `json:"Idempotency-Key"`
+
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
+// RefundParams defines parameters for Refund.
+type RefundParams struct {
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
 // ListSettlementsParams defines parameters for ListSettlements.
 type ListSettlementsParams struct {
 	// Limit The maximum number of objects to return, from 1 to 100.
@@ -1200,6 +1774,27 @@ type SettlementParams struct {
 	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
 }
 
+// StatementParams defines parameters for Statement.
+type StatementParams struct {
+	// Month The calendar month in UTC, as YYYY-MM. The current month is served to the time of the request and marked provisional. A month that has not begun is 400 invalid_month.
+	Month string `form:"month" json:"month"`
+
+	// Format csv for a file Excel opens, or html for a printable A4 page. Print the page to save a PDF. Any other value is 400 invalid_format.
+	Format StatementParamsFormat `form:"format" json:"format"`
+
+	// Lang The language of the labels. Defaults to en.
+	Lang *StatementParamsLang `form:"lang,omitempty" json:"lang,omitempty"`
+
+	// ApiVersion The API version for this request, as a date in `YYYY-MM-DD` format. When omitted, your account's version applies, which is set to the latest version on your first request. An unknown version returns 400 `invalid_api_version`.
+	ApiVersion *ApiVersion `json:"Api-Version,omitempty"`
+}
+
+// StatementParamsFormat defines parameters for Statement.
+type StatementParamsFormat string
+
+// StatementParamsLang defines parameters for Statement.
+type StatementParamsLang string
+
 // AdvancePaymentIntentParams defines parameters for AdvancePaymentIntent.
 type AdvancePaymentIntentParams struct {
 	// IdempotencyKey A unique key you generate for this request, up to 255 characters. A retry with the same key and body returns the original response. Without it, the request returns 400 `idempotency_key_required`.
@@ -1227,11 +1822,20 @@ type WebhookPublicKeysParams struct {
 // SubmitDisputeEvidenceJSONRequestBody defines body for SubmitDisputeEvidence for application/json ContentType.
 type SubmitDisputeEvidenceJSONRequestBody = DisputeEvidence
 
+// CreateFileMultipartRequestBody defines body for CreateFile for multipart/form-data ContentType.
+type CreateFileMultipartRequestBody = FileUpload
+
 // CreatePaymentIntentJSONRequestBody defines body for CreatePaymentIntent for application/json ContentType.
 type CreatePaymentIntentJSONRequestBody = PaymentIntentCreate
 
 // CreatePaymentAttemptJSONRequestBody defines body for CreatePaymentAttempt for application/json ContentType.
 type CreatePaymentAttemptJSONRequestBody CreatePaymentAttemptJSONBody
+
+// CreateRefundJSONRequestBody defines body for CreateRefund for application/json ContentType.
+type CreateRefundJSONRequestBody = RefundCreate
+
+// CreateSettlementJSONRequestBody defines body for CreateSettlement for application/json ContentType.
+type CreateSettlementJSONRequestBody = SettlementCreate
 
 // AdvancePaymentIntentJSONRequestBody defines body for AdvancePaymentIntent for application/json ContentType.
 type AdvancePaymentIntentJSONRequestBody = PaymentIntentAdvance

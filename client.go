@@ -51,7 +51,8 @@ const (
 // A Client calls the merchant API. Key is required; every other field has a working zero value.
 // A Client is safe for concurrent use.
 type Client struct {
-	// Key is the secret API key, sk_test_… or sk_live_….
+	// Key is the secret API key, sk_test_… or sk_live_…, or a withdrawal key, wk_test_… or
+	// wk_live_…, which CreateSettlement needs in production.
 	Key string
 	// BaseURL defaults to DefaultBaseURL.
 	BaseURL string
@@ -131,13 +132,15 @@ func Canonical(timestamp, method, path string, body []byte) []byte {
 }
 
 // APIError is an error response from the API. Use Code to handle a specific error.
+// DeclineCode is set on payment_blocked alone and names the kind of risk rule that declined.
 type APIError struct {
-	Status    int
-	Type      ErrorType
-	Code      string
-	Message   string
-	Param     string
-	RequestID string
+	Status      int
+	Type        ErrorType
+	Code        string
+	DeclineCode ErrorDeclineCode
+	Message     string
+	Param       string
+	RequestID   string
 }
 
 func (e *APIError) Error() string {
@@ -162,14 +165,24 @@ func apiError(res *http.Response, body []byte) *APIError {
 		if env.Error.RequestId != nil {
 			e.RequestID = *env.Error.RequestId
 		}
+		if env.Error.DeclineCode != nil {
+			e.DeclineCode = *env.Error.DeclineCode
+		}
 	} else {
 		e.Code = http.StatusText(res.StatusCode)
 	}
 	return e
 }
 
+// rawBody is a request body sent as it is, such as a multipart upload. Any other in is JSON.
+type rawBody struct {
+	data        []byte
+	contentType string
+}
+
 // do sends one call. params is a generated XxxParams value or nil: its form fields become the
-// query and its other fields, Idempotency-Key and Api-Version, become headers.
+// query and its other fields, Idempotency-Key and Api-Version, become headers. An out of type
+// *[]byte receives the response body as it is.
 func (c *Client) do(ctx context.Context, method, path string, params, in, out any) error {
 	query, header := encode(params)
 	return c.send(ctx, method, path, query, header, in, out)
@@ -181,11 +194,17 @@ func (c *Client) send(ctx context.Context, method, path string, query url.Values
 		path += "?" + q
 	}
 	var body []byte
-	if in != nil {
+	switch v := in.(type) {
+	case nil:
+	case rawBody:
+		body = v.data
+		header.Set("Content-Type", v.contentType)
+	default:
 		var err error
 		if body, err = json.Marshal(in); err != nil {
 			return fmt.Errorf("lemak: encode %s %s: %w", method, path, err)
 		}
+		header.Set("Content-Type", "application/json")
 	}
 	if method == http.MethodPost && header.Get("Idempotency-Key") == "" {
 		header.Set("Idempotency-Key", rand.Text())
@@ -194,9 +213,6 @@ func (c *Client) send(ctx context.Context, method, path string, query url.Values
 		header.Set("Api-Version", or(c.APIVersion, APIVersion))
 	}
 	header.Set("Authorization", "Bearer "+c.Key)
-	if in != nil {
-		header.Set("Content-Type", "application/json")
-	}
 
 	retries := c.MaxRetries
 	if retries == 0 {
@@ -223,6 +239,10 @@ func (c *Client) send(ctx context.Context, method, path string, query url.Values
 			return apiError(res, data)
 		default:
 			if out == nil {
+				return nil
+			}
+			if raw, ok := out.(*[]byte); ok {
+				*raw = data
 				return nil
 			}
 			if err := json.Unmarshal(data, out); err != nil {

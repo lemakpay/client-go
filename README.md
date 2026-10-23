@@ -11,7 +11,7 @@ Go 1.24 or later.
 ## Installation
 
 ```sh
-go get github.com/lemakpay/client-go@v0.5.0
+go get github.com/lemakpay/client-go@v0.6.0
 ```
 
 ```go
@@ -135,6 +135,65 @@ if r := pi.Receipt; r != nil { // present from succeeded on
 `ReceiptEmail` is not returned. A value that is not one email address returns 400
 `invalid_receipt_email`. The hosted invoice and receipt pages have a Download PDF button.
 
+### Refunds
+
+```go
+amount := int64(50000)
+re, err := c.CreateRefund(ctx, lemak.RefundCreate{PaymentIntent: pi.Id, Amount: &amount}, nil)
+```
+
+Leave `Amount` nil to refund all that is left. `ListRefunds` and `Refund` read refunds back, and
+the `refund.created`, `refund.succeeded` and `refund.failed` events report their progress.
+
+### Disputes and evidence files
+
+Upload a file, then name it under one of the file keys of the evidence:
+
+```go
+f, err := os.Open("receipt.pdf")
+if err != nil {
+	return err
+}
+defer f.Close()
+file, err := c.CreateFile(ctx, lemak.FilePurposeDisputeEvidence, "receipt.pdf", f, nil)
+if err != nil {
+	return err
+}
+dp, err := c.SubmitDisputeEvidence(ctx, disputeID, lemak.DisputeEvidence{
+	Evidence: map[string]any{lemak.EvidenceReceipt: file.Id},
+}, nil)
+```
+
+A file is a PDF, a JPEG or a PNG of at most 5 MB. To accept a dispute instead, call
+`CloseDispute`.
+
+### Balance transactions and statements
+
+`ListBalanceTransactions` iterates over every movement of your balance. `Statement` returns the
+statement of one month as CSV or as a printable HTML page:
+
+```go
+csv, err := c.Statement(ctx, lemak.StatementParams{Month: "2026-09", Format: lemak.StatementParamsFormatCsv})
+```
+
+### Withdrawals
+
+On a manual settlement schedule, `CreateSettlement` withdraws from the available balance. In
+production it needs a withdrawal key (`wk_live_...`) as the client's `Key`. If your approval
+policy holds the withdrawal for a second approver, you get the pending request instead of a
+settlement:
+
+```go
+amount, usd := int64(100000), lemak.SettlementCreateCurrencyUSD
+st, req, err := c.CreateSettlement(ctx, &lemak.SettlementCreate{Amount: &amount, Currency: &usd}, nil)
+if err != nil {
+	return err
+}
+if req != nil {
+	fmt.Println("waiting for approval:", req.Id)
+}
+```
+
 ### Request signing
 
 If your account requires signed requests, set a `Signer`:
@@ -182,7 +241,8 @@ parameters. Network errors, `429` and `5xx` responses are retried twice with the
 ### Errors
 
 API errors are returned as `*lemak.APIError`, with `Status`, `Type`, `Code`, `Param` and
-`RequestID`. Use `Code` to handle a specific error.
+`RequestID`. Use `Code` to handle a specific error. A `payment_blocked` error also carries
+`DeclineCode`, the kind of risk rule that declined the payment.
 
 ### Webhooks
 

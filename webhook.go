@@ -126,6 +126,9 @@ const (
 	EventDisputeOpened         EventType = "dispute.opened"
 	EventDisputeUpdated        EventType = "dispute.updated"
 	EventDisputeClosed         EventType = "dispute.closed"
+	EventRefundCreated         EventType = "refund.created"
+	EventRefundSucceeded       EventType = "refund.succeeded"
+	EventRefundFailed          EventType = "refund.failed"
 )
 
 // EventTypes lists every type the platform delivers.
@@ -136,6 +139,7 @@ func EventTypes() []EventType {
 		EventPaymentIntentExpired, EventPaymentIntentCanceled, EventPaymentIntentFinalized, EventPaymentIntentReversed,
 		EventSettlementPending, EventSettlementProcessing, EventSettlementPaid, EventSettlementFailed,
 		EventDisputeOpened, EventDisputeUpdated, EventDisputeClosed,
+		EventRefundCreated, EventRefundSucceeded, EventRefundFailed,
 	}
 }
 

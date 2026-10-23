@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -81,7 +83,8 @@ func TestEveryRouteIsCovered(t *testing.T) {
 		},
 		"dispute":               func() { c.Dispute(ctx, "dp_A", nil) },
 		"submitDisputeEvidence": func() { c.SubmitDisputeEvidence(ctx, "dp_A", DisputeEvidence{}, nil) },
-		"createSettlement":      func() { c.CreateSettlement(ctx, nil) },
+		"closeDispute":          func() { c.CloseDispute(ctx, "dp_A", nil) },
+		"createSettlement":      func() { c.CreateSettlement(ctx, nil, nil) },
 		"listSettlements": func() {
 			for range c.ListSettlements(ctx, nil) {
 			}
@@ -96,6 +99,21 @@ func TestEveryRouteIsCovered(t *testing.T) {
 		"webhookPublicKeys":  func() { c.WebhookPublicKeys(ctx, nil) },
 		"listPaymentMethods": func() { c.ListPaymentMethods(ctx, nil) },
 		"listCurrencies":     func() { c.ListCurrencies(ctx, nil) },
+		"createFile": func() {
+			c.CreateFile(ctx, FilePurposeDisputeEvidence, "a.pdf", strings.NewReader("%PDF"), nil)
+		},
+		"file":         func() { c.File(ctx, "file_A", nil) },
+		"createRefund": func() { c.CreateRefund(ctx, RefundCreate{PaymentIntent: "pi_A"}, nil) },
+		"listRefunds": func() {
+			for range c.ListRefunds(ctx, nil) {
+			}
+		},
+		"refund": func() { c.Refund(ctx, "re_A", nil) },
+		"listBalanceTransactions": func() {
+			for range c.ListBalanceTransactions(ctx, nil) {
+			}
+		},
+		"statement": func() { c.Statement(ctx, StatementParams{Month: "2026-09", Format: StatementParamsFormatCsv}) },
 	}
 	for _, route := range load(t).Routes {
 		t.Run(route.Operation, func(t *testing.T) {
@@ -233,9 +251,12 @@ func TestErrors(t *testing.T) {
 	}{
 		{"a 4xx is not retried", status(422,
 			`{"error":{"type":"idempotency_error","code":"idempotency_key_reused","message":"m","param":"Idempotency-Key","request_id":"req_A"}}`),
-			2, APIError{422, ErrorTypeIdempotencyError, "idempotency_key_reused", "m", "Idempotency-Key", "req_A"}, 1},
+			2, APIError{Status: 422, Type: ErrorTypeIdempotencyError, Code: "idempotency_key_reused", Message: "m", Param: "Idempotency-Key", RequestID: "req_A"}, 1},
+		{"payment_blocked carries decline_code", status(402,
+			`{"error":{"type":"invalid_request_error","code":"payment_blocked","decline_code":"velocity","message":"m"}}`),
+			2, APIError{Status: 402, Type: ErrorTypeInvalidRequestError, Code: "payment_blocked", DeclineCode: ErrorDeclineCodeVelocity, Message: "m"}, 1},
 		{"a 5xx stops after the retries", status(500, `{"error":{"type":"api_error","code":"api_error","message":"m"}}`, "Request-Id", "req_B", "Retry-After", "0"),
-			1, APIError{500, ErrorTypeApiError, "api_error", "m", "", "req_B"}, 2},
+			1, APIError{Status: 500, Type: ErrorTypeApiError, Code: "api_error", Message: "m", RequestID: "req_B"}, 2},
 		{"a body that is not an envelope", status(502, `<html>`), -1, APIError{Status: 502, Code: "Bad Gateway"}, 1},
 	}
 	for _, tt := range tests {
@@ -288,5 +309,77 @@ func TestPagination(t *testing.T) {
 	}
 	if q := r.seen[1].URL.Query(); q.Get("starting_after") != "evt_B" || q.Get("limit") != "2" {
 		t.Errorf("second page query = %v, want starting_after=evt_B and limit=2", q)
+	}
+}
+
+// An upload is multipart, and the signature covers the multipart bytes exactly as sent.
+func TestCreateFileSignsTheMultipartBody(t *testing.T) {
+	c, r := serve(t, status(201, `{"id":"file_A","object":"file","purpose":"dispute_evidence","type":"pdf"}`))
+	_, priv, _ := ed25519.GenerateKey(nil)
+	c.Signer = Ed25519Signer{KeyID: "key_A", Key: priv}
+	f, err := c.CreateFile(context.Background(), FilePurposeDisputeEvidence, "receipt.pdf", strings.NewReader("%PDF-1.7 x"), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.Id != "file_A" {
+		t.Errorf("id = %s", f.Id)
+	}
+	req := r.seen[0]
+	_, params, err := mime.ParseMediaType(req.Header.Get("Content-Type"))
+	if err != nil || params["boundary"] == "" {
+		t.Fatalf("Content-Type = %q, want multipart/form-data with a boundary", req.Header.Get("Content-Type"))
+	}
+	if req.Header.Get("Idempotency-Key") == "" {
+		t.Error("an upload carries no Idempotency-Key")
+	}
+	form, err := multipart.NewReader(strings.NewReader(r.bodies[0]), params["boundary"]).ReadForm(1 << 20)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := form.Value["purpose"]; len(got) != 1 || got[0] != "dispute_evidence" {
+		t.Errorf("purpose = %v", got)
+	}
+	if fh := form.File["file"]; len(fh) != 1 || fh[0].Filename != "receipt.pdf" || fh[0].Size != 10 {
+		t.Errorf("file part = %+v, want receipt.pdf of 10 bytes", fh)
+	}
+	sig, _ := base64.StdEncoding.DecodeString(strings.TrimPrefix(req.Header.Get("X-Signature"), "v2="))
+	if !ed25519.Verify(priv.Public().(ed25519.PublicKey), Canonical(req.Header.Get("X-Timestamp"), "POST", "/v1/files", []byte(r.bodies[0])), sig) {
+		t.Error("the signature does not cover the multipart body")
+	}
+}
+
+func TestCreateSettlement(t *testing.T) {
+	ctx := context.Background()
+	c, r := serve(t,
+		status(201, `{"id":"st_A","object":"settlement"}`),
+		status(202, `{"id":"mrq_A","object":"merchant_request","kind":"withdrawal","status":"pending","summary":{"amount":"100.00 USD"}}`))
+	amount, usd := int64(10000), SettlementCreateCurrencyUSD
+	st, mr, err := c.CreateSettlement(ctx, nil, nil)
+	if err != nil || st == nil || st.Id != "st_A" || mr != nil {
+		t.Errorf("201 = %v, %v, %v, want the settlement", st, mr, err)
+	}
+	if r.bodies[0] != "" || r.seen[0].Header.Get("Content-Type") != "" {
+		t.Errorf("a nil body sent %q", r.bodies[0])
+	}
+	st, mr, err = c.CreateSettlement(ctx, &SettlementCreate{Amount: &amount, Currency: &usd}, nil)
+	if err != nil || st != nil || mr == nil || mr.Id != "mrq_A" || mr.Summary["amount"] == "" {
+		t.Errorf("202 = %v, %v, %v, want the merchant request", st, mr, err)
+	}
+	if want := `{"amount":10000,"currency":"USD"}`; r.bodies[1] != want {
+		t.Errorf("body = %s, want %s", r.bodies[1], want)
+	}
+}
+
+func TestStatementIsRaw(t *testing.T) {
+	c, r := serve(t, status(200, "date,type,amount\n2026-09-01,payment,1.00\n", "Content-Type", "text/csv"))
+	got, err := c.Statement(context.Background(), StatementParams{Month: "2026-09", Format: StatementParamsFormatCsv})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != "date,type,amount\n2026-09-01,payment,1.00\n" {
+		t.Errorf("statement = %q", got)
+	}
+	if q := r.seen[0].URL.RawQuery; q != "format=csv&month=2026-09" {
+		t.Errorf("query = %s", q)
 	}
 }
